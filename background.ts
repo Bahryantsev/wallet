@@ -1,15 +1,13 @@
 import { VaultService } from './src/lib/vault'
-import { EMessageAction } from './src/types/messages'
+import { EMessageAction, IMessage } from './src/types/messages'
 
 const actionsMap = {
-  [EMessageAction.DECRYPT]: (valut: VaultService, msg) => {},
-  [EMessageAction.ENCRYPT]: (valut: VaultService, msg) => {},
+  [EMessageAction.DECRYPT]: (valut: VaultService, msg: IMessage) => {},
+  [EMessageAction.ENCRYPT]: (valut: VaultService, msg: IMessage) => {},
 }
 chrome.runtime.onConnect.addListener((port) => {
   const vault = new VaultService()
-  port.onMessage.addListener((msg) => {
-    
-  })
+  port.onMessage.addListener((msg) => {})
 })
 
 chrome.alarms.create('keep-alive', {
