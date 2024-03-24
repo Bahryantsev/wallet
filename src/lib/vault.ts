@@ -67,7 +67,7 @@ export class VaultService {
     if (this.salt) return this.salt
     const storedSalt = await retrieve(SALT_KEY)
     if (!storedSalt) {
-      throw new Error('Nonce not found in local storage.')
+      throw new Error('Salt not found in local storage.')
     }
     return Uint8Array.from(atob(storedSalt), (c) => c.charCodeAt(0))
   }
