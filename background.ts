@@ -8,8 +8,13 @@ const actionsMap = {
     msg: IMessage,
     port: chrome.runtime.Port
   ) => {
-    const decryptedData = await vault.decrypt(msg.value, msg?.pw)
-    port.postMessage({ ...msg, value: decryptedData })
+    try{
+      const decryptedData = await vault.decrypt(msg.value, msg?.pw)
+      port.postMessage({ ...msg, value: decryptedData })
+    }catch(e){
+      port.postMessage({...msg, error: true})
+    }
+
   },
   [EMessageAction.ENCRYPT]: async (
     msg: IMessage,

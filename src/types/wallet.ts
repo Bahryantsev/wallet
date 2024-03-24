@@ -18,4 +18,5 @@ export interface IWalletContext {
   cipher: string | undefined
   shouldLogin: boolean
   shouldCreate: boolean
+  login: (pw?:string) => void
 }

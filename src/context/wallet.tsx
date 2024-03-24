@@ -14,6 +14,7 @@ export const WalletContext = createContext<IWalletContext>({
   cipher: undefined,
   shouldCreate: false,
   shouldLogin: false,
+  login: ()=> {}
 })
 
 const WalletContextProvider = ({ children }: { children: JSX.Element }) => {
@@ -36,9 +37,17 @@ const WalletContextProvider = ({ children }: { children: JSX.Element }) => {
     }
   }, [])
 
+  const login = useCallback(
+    (pw?: string) => {
+      if (!cipher) return
+      sendDecrypt(cipher, pw)
+      setShouldLogin(false)
+    },
+    [cipher]
+  )
+
   useEffect(() => {
-    if (!cipher) return
-    sendDecrypt(cipher)
+    login()
   }, [cipher])
 
   useEffect(() => {
@@ -49,7 +58,7 @@ const WalletContextProvider = ({ children }: { children: JSX.Element }) => {
     port.onMessage.addListener((msg: IMessage) => {
       switch (msg.action) {
         case EMessageAction.DECRYPT:
-          return restore(msg.value)
+          return msg.error ? setShouldLogin(true) : restore(msg.value)
         case EMessageAction.ENCRYPT:
           return setCipher(msg.value)
         default:
@@ -68,6 +77,7 @@ const WalletContextProvider = ({ children }: { children: JSX.Element }) => {
         cipher,
         shouldCreate,
         shouldLogin,
+        login
       }}
     >
       {children}

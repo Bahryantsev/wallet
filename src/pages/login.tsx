@@ -10,14 +10,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { WalletContext } from '@/context/wallet'
-import useMessages from '@/hooks/useMessages'
 import { FormEvent, useCallback, useContext, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function LogIn() {
   const [errorText, setErrorText] = useState<string>('')
-  const { restore, cipher, port } = useContext(WalletContext)
-  const { sendDecrypt } = useMessages(port)
+  const { restore, login } = useContext(WalletContext)
   const navigate = useNavigate()
 
   const handleSubmit = useCallback(
@@ -27,13 +25,13 @@ export default function LogIn() {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
         const pw = formData.get('password')?.toString() ?? ''
-        sendDecrypt(cipher!, pw)
+        login(pw)
         navigate('/')
       } catch (e: unknown) {
         setErrorText('Password is not valid')
       }
     },
-    [setErrorText, navigate, restore, cipher]
+    [setErrorText, navigate, restore, login]
   )
 
   const submitButton = useMemo(() => {
