@@ -8,8 +8,8 @@ export class VaultService {
 
   constructor() {}
 
-  private async deriveKeyFromPassword(password: string): Promise<void> {
-    if(!password) return
+  private async deriveKeyFromPassword(password?: string): Promise<void> {
+    if(!password) throw new Error('Password and derivedKey should not be empty')
     this.salt = this.generateAndStoreSalt()
     const encoder = new TextEncoder()
     const keyMaterial = await crypto.subtle.importKey(
@@ -72,7 +72,7 @@ export class VaultService {
     return Uint8Array.from(atob(storedSalt), (c) => c.charCodeAt(0))
   }
 
-  async encrypt(plaintext: string, password: string): Promise<string> {
+  async encrypt(plaintext: string, password?: string): Promise<string> {
     if (!this.derivedKey) await this.deriveKeyFromPassword(password)
     this.nonce = this.generateAndStoreNonce()
     const encoder = new TextEncoder()
@@ -93,7 +93,7 @@ export class VaultService {
     )
   }
 
-  async decrypt(ciphertext: string, password: string): Promise<string> {
+  async decrypt(ciphertext: string, password?: string): Promise<string> {
     this.salt = await this.retrieveSalt()
     if (!this.derivedKey) await this.deriveKeyFromPassword(password)
 
