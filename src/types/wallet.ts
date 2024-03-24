@@ -14,4 +14,8 @@ export interface IWalletContext {
   wallet: TWallet | undefined
   create: () => void
   restore: (mnemonic: string) => void
+  port: chrome.runtime.Port
+  cipher: string | undefined
+  shouldLogin: boolean
+  shouldCreate: boolean
 }

@@ -4,24 +4,25 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { MNEMONIC_KEY } from '@/constants/storage'
 import { WalletContext } from '@/context/wallet'
-import useLocalStorage from '@/hooks/useLocalStorage'
 import { ICoin } from '@/types/wallet'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function Balance() {
   const navigate = useNavigate()
-  const { wallet } = useContext(WalletContext)
+  const { wallet, shouldCreate, shouldLogin } = useContext(WalletContext)
   const [balance, setBalance] = useState<ICoin | undefined>(undefined)
   const [isBalanceLoading, setIsBalaceLoading] = useState<boolean>(false)
   const [errorText, setErrorText] = useState<string>('')
-  const [cipher] = useLocalStorage(MNEMONIC_KEY)
 
   useEffect(() => {
-    if (!cipher) return navigate('/getstarted')
-    if (!wallet) return navigate('/login')
+    if (shouldCreate) return navigate('/getstarted')
+    if (shouldLogin) return navigate('/login')
+  }, [shouldCreate, shouldLogin])
+
+  useEffect(() => {
+    if (!wallet) return
     setIsBalaceLoading(true)
     setErrorText('')
     wallet
@@ -29,7 +30,7 @@ export default function Balance() {
       .then((balance) => setBalance(balance))
       .catch(() => setErrorText("Can't get balance"))
       .finally(() => setIsBalaceLoading(false))
-  }, [wallet, cipher])
+  }, [wallet])
 
   const cardTitle = useMemo(() => {
     if (isBalanceLoading) return <CardTitle>Loading...</CardTitle>

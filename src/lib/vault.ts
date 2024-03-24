@@ -9,6 +9,7 @@ export class VaultService {
   constructor() {}
 
   private async deriveKeyFromPassword(password: string): Promise<void> {
+    if(!password) return
     this.salt = this.generateAndStoreSalt()
     const encoder = new TextEncoder()
     const keyMaterial = await crypto.subtle.importKey(
@@ -44,7 +45,6 @@ export class VaultService {
   }
 
   private generateAndStoreSalt(): Uint8Array {
-    console.log({ salt: this.salt })
     if (this.salt) return this.salt
     this.salt = crypto.getRandomValues(new Uint8Array(16))
     store(
@@ -54,19 +54,18 @@ export class VaultService {
     return this.salt
   }
 
-  private retrieveNonce(): Uint8Array {
-    console.log({ nonce: this.nonce })
+  private async retrieveNonce(): Promise<Uint8Array> {
     if (this.nonce) return this.nonce
-    const storedNonce = retrieve(NONCE_KEY)
+    const storedNonce = await retrieve(NONCE_KEY)
     if (!storedNonce) {
       throw new Error('Nonce not found in local storage.')
     }
     return Uint8Array.from(atob(storedNonce), (c) => c.charCodeAt(0))
   }
 
-  private retrieveSalt(): Uint8Array {
+  private async retrieveSalt(): Promise<Uint8Array> {
     if (this.salt) return this.salt
-    const storedSalt = retrieve(SALT_KEY)
+    const storedSalt = await retrieve(SALT_KEY)
     if (!storedSalt) {
       throw new Error('Nonce not found in local storage.')
     }
@@ -76,7 +75,6 @@ export class VaultService {
   async encrypt(plaintext: string, password: string): Promise<string> {
     if (!this.derivedKey) await this.deriveKeyFromPassword(password)
     this.nonce = this.generateAndStoreNonce()
-    console.log({ nonce: this.nonce, salt: this.salt })
     const encoder = new TextEncoder()
     const data = encoder.encode(plaintext)
 
@@ -96,10 +94,10 @@ export class VaultService {
   }
 
   async decrypt(ciphertext: string, password: string): Promise<string> {
-    this.salt = this.retrieveSalt()
+    this.salt = await this.retrieveSalt()
     if (!this.derivedKey) await this.deriveKeyFromPassword(password)
 
-    this.nonce = this.retrieveNonce()
+    this.nonce = await this.retrieveNonce()
     const encryptedData = Uint8Array.from(atob(ciphertext), (c) =>
       c.charCodeAt(0)
     )

@@ -6,7 +6,10 @@ export enum EMessageAction {
 export interface IMessage {
   action: EMessageAction
   value: string
-  key: string
   error?: boolean
   pw?: string
+}
+
+export interface IMessageContext { 
+    port: chrome.runtime.Port
 }

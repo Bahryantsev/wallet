@@ -9,18 +9,17 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { MNEMONIC_KEY } from '@/constants/storage'
 import { WalletContext } from '@/context/wallet'
-import useLocalStorage from '@/hooks/useLocalStorage'
-import { VaultService } from '@/lib/vault'
+import useMessages from '@/hooks/useMessages'
 import { FormEvent, useCallback, useContext, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function LogIn() {
-  const [cipher] = useLocalStorage<string>(MNEMONIC_KEY)
   const [errorText, setErrorText] = useState<string>('')
-  const { restore } = useContext(WalletContext)
+  const { restore, cipher, port } = useContext(WalletContext)
+  const { sendDecrypt } = useMessages(port)
   const navigate = useNavigate()
+
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       setErrorText('')
@@ -28,10 +27,7 @@ export default function LogIn() {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
         const pw = formData.get('password')?.toString() ?? ''
-        const vault = new VaultService()
-        const mnemonic = await vault.decrypt(cipher, pw)
-        console.log({ mnemonic })
-        restore(mnemonic)
+        sendDecrypt(cipher!, pw)
         navigate('/')
       } catch (e: unknown) {
         setErrorText('Password is not valid')

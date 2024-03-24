@@ -1,10 +1,9 @@
-import { retrieve, store } from '@/lib/storage'
 import { useState } from 'react'
 
 export default <T>(key: string, initial?: T) => {
   const [stored, setStored] = useState<T>(() => {
     try {
-      const item = retrieve(key)
+      const item = localStorage.getItem(key)
       return item ? JSON.parse(item) : initial
     } catch (error) {
       console.error(error)
@@ -16,7 +15,7 @@ export default <T>(key: string, initial?: T) => {
     try {
       const next = value instanceof Function ? value(stored) : value
       setStored(next)
-      store(key, JSON.stringify(next))
+      localStorage.setItem(key, JSON.stringify(next))
     } catch (error) {
       console.error(error)
     }
