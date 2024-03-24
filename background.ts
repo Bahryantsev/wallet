@@ -1,4 +1,3 @@
-import { store } from './src/lib/storage'
 import { VaultService } from './src/lib/vault'
 import { EMessageAction, IMessage } from './src/types/messages'
 
@@ -17,8 +16,7 @@ const actionsMap = {
     port: chrome.runtime.Port
   ) => {
     const encryptedData = await vault.encrypt(msg.value, msg.pw ?? '')
-    store(msg.key, encryptedData)
-  },
+    port.postMessage({...msg, value: encryptedData})  },
 }
 chrome.runtime.onConnect.addListener((port) => {
   const vault = new VaultService()
