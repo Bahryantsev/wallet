@@ -26,7 +26,7 @@ export default function Restore() {
         const formData = new FormData(form)
         const mnemonic = formData.get('mnemonic')?.toString() ?? ''
         restore(mnemonic)
-        navigate('/')
+        navigate('/createPw')
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : UNKNOWN_ERROR_MSG
         setErrorText(message)
