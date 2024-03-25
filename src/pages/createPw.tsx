@@ -46,11 +46,11 @@ export default function CreatePassword() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div className='space-y-1'>
             <Label htmlFor="password">Password</Label>
             <Input id="password" name="password" required type="password" />
           </div>
-          <div>
+          <div className='space-y-1'>
             <Label htmlFor="confirm-password">Confirm password</Label>
             <Input
               id="confirm-password"
