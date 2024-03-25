@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import SubmitButton from '@/components/submitButton'
 import {
   Card,
   CardContent,
@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { WalletContext } from '@/context/wallet'
-import { FormEvent, useCallback, useContext, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function LogIn() {
@@ -34,20 +34,6 @@ export default function LogIn() {
     [setErrorText, navigate, restore, login]
   )
 
-  const submitButton = useMemo(() => {
-    if (errorText)
-      return (
-        <Button className="w-full" type="submit" variant={'destructive'}>
-          {errorText}
-        </Button>
-      )
-    return (
-      <Button className="w-full" type="submit" variant={'default'}>
-        Submit
-      </Button>
-    )
-  }, [errorText])
-
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
@@ -66,7 +52,9 @@ export default function LogIn() {
             />
           </div>
         </CardContent>
-        <CardFooter>{submitButton}</CardFooter>
+        <CardFooter>
+          <SubmitButton errorText={errorText} />
+        </CardFooter>
       </form>
     </Card>
   )

@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import SubmitButton from '@/components/submitButton'
 import {
   Card,
   CardContent,
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UNKNOWN_ERROR_MSG } from '@/constants/text'
 import { WalletContext } from '@/context/wallet'
-import { FormEvent, useCallback, useContext, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function Restore() {
@@ -35,25 +35,6 @@ export default function Restore() {
     [setErrorText, navigate, restore]
   )
 
-  const submitButton = useMemo(() => {
-    if (errorText)
-      return (
-        <Button
-          className="w-full"
-          type="submit"
-          variant={'destructive'}
-          disabled
-        >
-          {errorText}
-        </Button>
-      )
-    return (
-      <Button className="w-full" type="submit" variant={'default'}>
-        Submit
-      </Button>
-    )
-  }, [errorText])
-
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center space-y-2">
@@ -73,7 +54,7 @@ export default function Restore() {
               name="mnemonic"
             />
           </div>
-          {submitButton}
+          <SubmitButton errorText={errorText} disabledWhileError />
         </form>
       </CardContent>
     </Card>

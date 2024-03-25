@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import SubmitButton from '@/components/submitButton'
 import {
   Card,
   CardContent,
@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { UNKNOWN_ERROR_MSG } from '@/constants/text'
 import { WalletContext } from '@/context/wallet'
 import useMessages from '@/hooks/useMessages'
-import { FormEvent, useCallback, useContext, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function CreatePassword() {
@@ -40,19 +40,7 @@ export default function CreatePassword() {
     [setErrorText, navigate, wallet]
   )
 
-  const submitButton = useMemo(() => {
-    if (errorText)
-      return (
-        <Button className="w-full" type="submit" variant={'destructive'}>
-          {errorText}
-        </Button>
-      )
-    return (
-      <Button className="w-full" type="submit" variant={'default'}>
-        Submit
-      </Button>
-    )
-  }, [errorText])
+
 
   return (
     <Card className="mx-auto max-w-sm">
@@ -75,7 +63,7 @@ export default function CreatePassword() {
               type="password"
             />
           </div>
-          {submitButton}
+          <SubmitButton errorText={errorText}/>
         </form>
       </CardContent>
     </Card>
