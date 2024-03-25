@@ -25,7 +25,7 @@ export default function LogIn() {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
         const pw = formData.get('password')?.toString() ?? ''
-        login(pw)
+        await login(pw)
         navigate('/')
       } catch (e: unknown) {
         setErrorText('Password is not valid')

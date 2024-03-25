@@ -2,19 +2,18 @@ import { MNEMONIC_KEY } from '@/constants/storage'
 import SolanaWallet from '@/core/wallet'
 import useLocalStorage from '@/hooks/useLocalStorage'
 import useMessages from '@/hooks/useMessages'
-import { EMessageAction, IMessage } from '@/types/messages'
 import { IWalletContext, TWallet } from '@/types/wallet'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useEffect, useState } from 'react'
 
 export const WalletContext = createContext<IWalletContext>({
   wallet: undefined,
   create: () => {},
   restore: () => {},
-  port: chrome.runtime.connect(),
   cipher: undefined,
   shouldCreate: false,
   shouldLogin: false,
-  login: ()=> {}
+  login: () => {},
+  createPw: () => {},
 })
 
 const WalletContextProvider = ({ children }: { children: JSX.Element }) => {
@@ -22,50 +21,41 @@ const WalletContextProvider = ({ children }: { children: JSX.Element }) => {
   const [cipher, setCipher] = useLocalStorage<string>(MNEMONIC_KEY)
   const [shouldLogin, setShouldLogin] = useState<boolean>(false)
   const [shouldCreate, setShouldCreate] = useState<boolean>(false)
-  const port = useMemo(() => chrome.runtime.connect(), [])
-  const { sendDecrypt } = useMessages(port)
+  const { sendDecrypt, sendEncrypt } = useMessages()
   const create = useCallback(() => {
     setWallet(SolanaWallet.create())
   }, [])
 
   const restore = useCallback((mnemonic: string) => {
-    try {
-      setWallet(SolanaWallet.createFromMnemonic(mnemonic))
-      setShouldLogin(false)
-    } catch (e) {
-      setShouldLogin(true)
-    }
+    setWallet(SolanaWallet.createFromMnemonic(mnemonic))
   }, [])
 
   const login = useCallback(
-    (pw?: string) => {
+    async (pw?: string) => {
       if (!cipher) return
-      sendDecrypt(cipher, pw)
+      const res = await sendDecrypt(cipher, pw)
+      restore(res)
       setShouldLogin(false)
     },
     [cipher]
   )
+  const createPw = useCallback(
+    async (pw: string) => {
+      if (!wallet) return
+      const mnemonic = wallet.getMnemonic()
+      const cipher = await sendEncrypt(mnemonic, pw)
+      setCipher(cipher)
+    },
+    [setCipher, wallet]
+  )
 
   useEffect(() => {
-    login()
+    login().catch(() => setShouldLogin(true))
   }, [cipher])
 
   useEffect(() => {
     setShouldCreate(!cipher && !wallet)
   }, [cipher, wallet])
-
-  useEffect(() => {
-    port.onMessage.addListener((msg: IMessage) => {
-      switch (msg.action) {
-        case EMessageAction.DECRYPT:
-          return msg.error ? setShouldLogin(true) : restore(msg.value)
-        case EMessageAction.ENCRYPT:
-          return setCipher(msg.value)
-        default:
-          throw new Error('Not implemented')
-      }
-    })
-  }, [setCipher, port])
 
   return (
     <WalletContext.Provider
@@ -73,11 +63,11 @@ const WalletContextProvider = ({ children }: { children: JSX.Element }) => {
         wallet,
         create,
         restore,
-        port,
         cipher,
         shouldCreate,
         shouldLogin,
-        login
+        login,
+        createPw,
       }}
     >
       {children}

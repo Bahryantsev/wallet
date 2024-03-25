@@ -10,15 +10,14 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { UNKNOWN_ERROR_MSG } from '@/constants/text'
 import { WalletContext } from '@/context/wallet'
-import useMessages from '@/hooks/useMessages'
 import { FormEvent, useCallback, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function CreatePassword() {
-  const { wallet, port } = useContext(WalletContext)
+  const { wallet, createPw } = useContext(WalletContext)
   const navigate = useNavigate()
   const [errorText, setErrorText] = useState<string>('')
-  const { sendEncrypt } = useMessages(port)
+
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       setErrorText('')
@@ -29,18 +28,15 @@ export default function CreatePassword() {
         const pw = formData.get('password')?.toString() ?? ''
         const confirmPw = formData.get('confirm-password')?.toString() ?? ''
         if (pw !== confirmPw) throw new Error('Passwords does not match')
-        const mnemonic = wallet.getMnemonic()
-        sendEncrypt(mnemonic, pw)
+        await createPw(pw)
         navigate('/')
       } catch (e: unknown) {
         const message = e instanceof Error ? e.message : UNKNOWN_ERROR_MSG
         setErrorText(message)
       }
     },
-    [setErrorText, navigate, wallet]
+    [setErrorText, navigate, wallet, createPw]
   )
-
-
 
   return (
     <Card className="mx-auto max-w-sm">
@@ -63,7 +59,7 @@ export default function CreatePassword() {
               type="password"
             />
           </div>
-          <SubmitButton errorText={errorText}/>
+          <SubmitButton errorText={errorText} />
         </form>
       </CardContent>
     </Card>
